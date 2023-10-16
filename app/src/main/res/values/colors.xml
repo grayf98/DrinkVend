@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+
+    <color name="cerulean">#4281A4</color>
+    <color name="verdigris">#48A9A6</color>
+    <color name="timberwolf">#E4DFDA</color>
+    <color name="rosybrown">#D3A3A3</color>
+    <color name="indianred">#C1666B</color>
+
+
+</resources>
