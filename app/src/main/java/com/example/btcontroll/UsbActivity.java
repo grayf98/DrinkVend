@@ -17,7 +17,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
@@ -89,16 +88,14 @@ public class UsbActivity extends AppCompatActivity {
         videoView.setVideoURI(videoUri);
         videoView.start();
         videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-
-
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
                 videoView.start(); // Restart video
             }
         });
-
     }
-//Debug
+
+    //Debug
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -111,7 +108,7 @@ public class UsbActivity extends AppCompatActivity {
     }
 
 
-    //    Buttons and sendData
+    //    Buttons
     private void clicklistners() {
         whiscoke.setOnClickListener(v -> {
             sendData("1");
@@ -206,12 +203,6 @@ public class UsbActivity extends AppCompatActivity {
         unregisterReceiver(usbReceiver);
     }
 
-//    private void requestPermission(UsbDevice device) {
-//
-//        PendingIntent permissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), PendingIntent.FLAG_IMMUTABLE);
-//        usbManager.requestPermission(device, permissionIntent);
-//    }
-
     private void requestPermission(UsbDevice device) {
         if (usbManager.hasPermission(device)) {
             Log.d("USB", "Already have permission for device: " + device.getDeviceName());
@@ -281,7 +272,6 @@ public class UsbActivity extends AppCompatActivity {
             Log.e("USB", "No driver found for the device: " + device.getDeviceName());
         }
     }
-
 
     @Override
     protected void onResume() {
@@ -366,7 +356,7 @@ public class UsbActivity extends AppCompatActivity {
             }
         }
     };
-
+//    Initialize Buttons
     private void initializeShotsButtons() {
         shotwhis = findViewById(R.id.shotwhis);
         shotteq = findViewById(R.id.shotteq);
