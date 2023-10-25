@@ -1,5 +1,6 @@
 package com.example.btcontroll;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -34,6 +35,8 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.Manifest;
+import android.content.pm.PackageManager;
 
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
@@ -63,12 +66,15 @@ public class MainActivity extends Activity {
     private static final String TAG = "BlueTest5-MainActivity";
     private static final int REQUEST_BLUETOOTH_PERMISSION = 1;
     private final String ACTION_USB_PERMISSION = "com.example.btcontroll.USB_PERMISSION"; // This should be a unique string to identify the permission request
+    private static final int REQUEST_PERMISSIONS = 1;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        checkAndRequestPermissions();
 
         search = (Button) findViewById(R.id.search);
         connect = (Button) findViewById(R.id.connect);
@@ -143,6 +149,46 @@ public class MainActivity extends Activity {
 
 
     }
+
+    private void checkAndRequestPermissions() {
+        // Specify the permissions
+        String[] permissions = {
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.BLUETOOTH,
+                Manifest.permission.BLUETOOTH_ADMIN,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.CALL_PHONE
+        };
+
+        // Check if permissions are granted
+        List<String> neededPermissions = new ArrayList<>();
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                neededPermissions.add(permission);
+            }
+        }
+
+        if (!neededPermissions.isEmpty()) {
+            // Request permissions
+            ActivityCompat.requestPermissions(this, neededPermissions.toArray(new String[0]), REQUEST_PERMISSIONS);
+        }
+    }
+
+    // Override this method to handle the permissions request response
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_PERMISSIONS) {
+            for (int i = 0; i < grantResults.length; i++) {
+                if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                    // Permission is not granted. You might want to inform the user and disable features that need the permission.
+                }
+            }
+        }
+    }
+
 
     private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
