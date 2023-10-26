@@ -44,9 +44,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BTControll"
-        tools:targetApi="31">
-<!--        android:name=".Payment">-->
-<!--      TODO  Uncomment above line and ">" on end of  targetApi-->
+        tools:targetApi="31"
+        android:name=".Payment">
 
         <activity
             android:name=".UsbActivity"

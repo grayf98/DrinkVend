@@ -15,15 +15,14 @@ dependencyResolutionManagement {
         }
 
 //      Square SDK
-//        maven {
-//            url = uri("https://sdk.squareup.com/android")
-//            credentials {
-//                TODO GET APPLICATION ID AND REPO PASSWORD
-//                username = SQUARE_READER_SDK_APPLICATION_ID;
-//                password = SQUARE_READER_SDK_REPOSITORY_PASSWORD;
+        maven {
+            url = uri("https://sdk.squareup.com/android")
+            credentials {
+                username = extra["SQUARE_READER_SDK_APPLICATION_ID"]?.toString() ?: ""
+                password = extra["SQUARE_READER_SDK_REPOSITORY_PASSWORD"]?.toString() ?: ""
 
-//            }
-//        }
+            }
+        }
 
     }
 }
