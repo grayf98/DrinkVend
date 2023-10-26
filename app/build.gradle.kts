@@ -15,7 +15,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 //        Square SDK
-          multiDexEnabled = true
+//          multiDexEnabled = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -39,14 +39,14 @@ android {
     }
 
 //  Square SDK
-    dexOptions{
-        // Ensures incremental builds remain fast
-        preDexLibraries = true
-        // Required to build with Reader SDK
-        jumboMode = true
-        // Required to build with Reader SDK
-        keepRuntimeAnnotatedClasses = false
-    }
+//    dexOptions{
+//        // Ensures incremental builds remain fast
+//        preDexLibraries = true
+//        // Required to build with Reader SDK
+//        jumboMode = true
+//        // Required to build with Reader SDK
+//        keepRuntimeAnnotatedClasses = false
+//    }
 }
 
 dependencies {
@@ -64,13 +64,9 @@ dependencies {
 
     // Square SDK
     val readerSdkVersion = "1.7.5"
-
     implementation("com.squareup.sdk.reader:reader-sdk-${SQUARE_READER_SDK_APPLICATION_ID}:${readerSdkVersion}")
     runtimeOnly("com.squareup.sdk.reader:reader-sdk-internals:$readerSdkVersion")
 
-//    TODO UNCOMMENT IF SDK DOESNT WORK POSSIBLE FIX
-//    Add this dependency if your minSdkVersion < 21
-//    implementation("androidx.multidex:multidex:2.0.0")
-
-
+//    QR Code Scan
+    implementation("com.dlazaro66.qrcodereaderview:qrcodereaderview:2.0.2")
 }
