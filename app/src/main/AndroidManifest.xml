@@ -12,7 +12,10 @@
     <uses-feature
         android:name="android.hardware.telephony"
         android:required="false" />
+    <uses-feature android:name="android.hardware.camera"/>
+    <uses-feature android:name="android.hardware.camera.autofocus"/>
 
+    <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
@@ -46,6 +49,19 @@
         android:theme="@style/Theme.BTControll"
         tools:targetApi="31"
         android:name=".Payment">
+
+        <activity android:name=".AuthorizeActivity"
+            android:theme="@style/JewelTheme"/>
+        <activity android:name=".ManualCodeEntryActivity"
+            android:theme="@style/JewelTheme"/>
+        <activity android:name=".ScanQRCodeActivity"
+            android:theme="@style/JewelTheme"/>
+        <activity android:name=".CheckoutActivity"
+            android:theme="@style/JewelTheme"/>
+        <activity android:name=".StartAuthorizeActivity"
+            android:exported="false"
+            android:theme="@style/JewelTheme"
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".UsbActivity"

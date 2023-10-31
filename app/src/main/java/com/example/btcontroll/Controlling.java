@@ -222,7 +222,6 @@ public class Controlling extends Activity {
         rumcoke = findViewById(R.id.rumcoke);
         rumlem = findViewById(R.id.rumlem);
         rumga = findViewById(R.id.rumga);
-
     }
 
     private void sendData(String s) {

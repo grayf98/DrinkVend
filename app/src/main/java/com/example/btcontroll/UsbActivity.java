@@ -34,12 +34,9 @@ public class UsbActivity extends AppCompatActivity {
     private UsbDeviceConnection usbConnection;
     private Button connectButton;
     private boolean permissionGranted = false;
-
     private static final String ACTION_USB_PERMISSION = "com.example.btcontroll.USB_PERMISSION";
-
     Button whiscoke, whisga, whislem, marg, teqoj, teqspri, teqlem, teqsw, vodcran, screw, vodsw, vodspri, vodlem, rumcoke, rumlem, rumga;
     Button splcran, splga, sploj, splsw, splspri, spllem, splcoke;
-
     Button shotwhis, shotteq, shotvod, shotrum;
 
     @Override
@@ -107,10 +104,20 @@ public class UsbActivity extends AppCompatActivity {
         }
     }
 
+    private void startCheckoutActivity(int price, String drinkName) {
+        Intent intent = new Intent(this, CheckoutActivity.class);
+        intent.putExtra("PRICE", price);
+        intent.putExtra("DRINK_NAME", drinkName);
+        startActivity(intent);
+    }
+
 
     //    Buttons
     private void clicklistners() {
         whiscoke.setOnClickListener(v -> {
+            int price = DrinkPrices.getPrice("whiscoke");
+            startCheckoutActivity(price, "WhisCoke");
+
             sendData("1");
         });
         whisga.setOnClickListener(v -> {

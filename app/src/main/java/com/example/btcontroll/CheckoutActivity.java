@@ -57,13 +57,17 @@ public class CheckoutActivity extends AppCompatActivity {
         AuthorizationManager authorizationManager = ReaderSdk.authorizationManager();
         deauthorizeCallbackRef = authorizationManager.addDeauthorizeCallback(this::onDeauthorizeResult);
 
+        Intent intent = getIntent();
+        int price = intent.getIntExtra("PRICE", 100);
+        String drinkName = intent.getStringExtra("DRINK_NAME");
+
         if (!authorizationManager.getAuthorizationState().isAuthorized()) {
             goToAuthorizeActivity();
         } else {
-//            100 is smallest amount of money in current denomination of currenct
+//            100 is smallest amount of money in current denomination of current
 //            Currency is USD so 100 cents or 1 dollar
 //            TODO: Change to get current price of drink
-            Money checkoutAmount = new Money(100, CurrencyCode.current());
+            Money checkoutAmount = new Money(price, CurrencyCode.current());
 
             TextView startCheckoutButton = findViewById(R.id.start_checkout_button);
             startCheckoutButton.setOnClickListener(view -> startCheckout(checkoutAmount));

@@ -48,13 +48,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
     private Button search;
     private Button connect;
     private Button usb_connect;
     private ListView listView;
     private BluetoothAdapter mBTAdapter;
-    private static final int BT_ENABLE_REQUEST = 10; // This is the code we use for BT Enable
+    private static final int BT_ENABLE_REQUEST = 10;
     private static final int SETTINGS = 20;
     private UUID mDeviceUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     private int mBufferSize = 50000; //Default
@@ -69,6 +69,7 @@ public class MainActivity extends Activity {
     private static final int REQUEST_PERMISSIONS = 1;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,6 +80,16 @@ public class MainActivity extends Activity {
         search = (Button) findViewById(R.id.search);
         connect = (Button) findViewById(R.id.connect);
         usb_connect = (Button) findViewById(R.id.usb_activity);
+
+        Button authorize = findViewById(R.id.authorize);
+        authorize.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent startAuthorizeIntent = new Intent(MainActivity.this, StartAuthorizeActivity.class);
+                startActivity(startAuthorizeIntent);
+            }
+        });
+
 
         usb_connect.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -149,6 +160,7 @@ public class MainActivity extends Activity {
 
 
     }
+
 
     private void checkAndRequestPermissions() {
         // Specify the permissions
@@ -496,14 +508,4 @@ public class MainActivity extends Activity {
         return true;
     }
 
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()) {
-//            case R.id.action_settings:
-//                Intent intent = new Intent(MainActivity.this, PreferencesActivity.class);
-//                startActivityForResult(intent, SETTINGS);
-//                break;
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
 }
