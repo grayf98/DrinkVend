@@ -6,9 +6,10 @@ import java.util.Map;
 public class DrinkPrices {
     public static final Map<String, Integer> PRICES = new HashMap<>();
 
+//    Prices are in cents 1000 = $10
     static {
 //        Mixed Drinks
-        PRICES.put("whiscoke", 1000);
+        PRICES.put("whiscoke", 1);
         PRICES.put("whisga", 1000);
         PRICES.put("whislem", 1000);
         PRICES.put("marg", 1000);

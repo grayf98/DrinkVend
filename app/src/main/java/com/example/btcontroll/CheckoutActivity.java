@@ -2,10 +2,14 @@ package com.example.btcontroll;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -39,13 +43,38 @@ public class CheckoutActivity extends AppCompatActivity {
     private CallbackReference readerSettingsCallbackRef;
     private boolean waitingForActivityStart = false;
 
+
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.checkout_activity);
 
+        // Hide the status bar
+        getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
+        );
+        // Hide the navigation bar
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+
+
         View settingsButton = findViewById(R.id.settings_button);
-        settingsButton.setOnClickListener(view -> showSettingsBottomSheet());
+        settingsButton.setVisibility(View.VISIBLE);
+        settingsButton.setBackgroundColor(Color.TRANSPARENT);
+        settingsButton.setOnLongClickListener(view -> {
+            promptForPassword();
+            return true;
+        });
+
+        View back_button = findViewById(R.id.back_button);
+        back_button.setOnClickListener(v -> finish());
+
+//        TODO: FIX SETTINGS VISIBILITY OR CREATE TEST CHECKOUT CLASS
+//        Remove line below to show settings button
+//        settingsButton.setVisibility(View.GONE);
 
         CheckoutManager checkoutManager = ReaderSdk.checkoutManager();
         checkoutCallbackRef = checkoutManager.addCheckoutActivityCallback(this::onCheckoutResult);
@@ -65,14 +94,39 @@ public class CheckoutActivity extends AppCompatActivity {
             goToAuthorizeActivity();
         } else {
 //            100 is smallest amount of money in current denomination of current
-//            Currency is USD so 100 cents or 1 dollar
-//            TODO: Change to get current price of drink
             Money checkoutAmount = new Money(price, CurrencyCode.current());
 
             TextView startCheckoutButton = findViewById(R.id.start_checkout_button);
             startCheckoutButton.setOnClickListener(view -> startCheckout(checkoutAmount));
             startCheckoutButton.setText(getString(R.string.start_checkout, checkoutAmount.format()));
         }
+
+    }
+
+    private void promptForPassword() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Enter Password");
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            String password = input.getText().toString();
+            if (isPasswordCorrect(password)) {
+                showSettingsBottomSheet();
+            } else {
+                Toast.makeText(this, "Incorrect Password", Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+
+        builder.show();
+    }
+
+    private boolean isPasswordCorrect(String password) {
+//        Change password here
+        return "2023".equals(password);
     }
 
     private void showSettingsBottomSheet() {
@@ -123,20 +177,32 @@ public class CheckoutActivity extends AppCompatActivity {
         waitingForActivityStart = true;
         CheckoutManager checkoutManager = ReaderSdk.checkoutManager();
         CheckoutParameters.Builder params = CheckoutParameters.newBuilder(checkoutAmount);
-        params.additionalPaymentTypes(AdditionalPaymentType.CASH);
-        params.note("Hello World!");
+//        params.additionalPaymentTypes(AdditionalPaymentType.CASH);
+        params.note("Thank you!");
         checkoutManager.startCheckoutActivity(this, params.build());
     }
 
     private void onCheckoutResult(Result<CheckoutResult, ResultError<CheckoutErrorCode>> result) {
+        Intent data = new Intent();
+        // Add this before you set the result to make sure it's included in the Intent you're sending back.
+        data.putExtra("DATA_TO_SEND", getIntent().getStringExtra("DATA_TO_SEND"));
+
         if (result.isSuccess()) {
             CheckoutResult checkoutResult = result.getSuccessValue();
             String totalAmount = checkoutResult.getTotalMoney().format();
             showDialog(getString(R.string.checkout_success_dialog_title, totalAmount),
                     getString(R.string.checkout_success_dialog_message));
             Log.d(TAG, "\n" + checkoutResult.toString() + "\n");
+
+            data.putExtra("EXTRA_SUCCESSFUL_CHECKOUT", true);
+            setResult(RESULT_OK, data);
+            finish();
         } else {
             ResultError<CheckoutErrorCode> error = result.getError();
+
+            data.putExtra("EXTRA_SUCCESSFUL_CHECKOUT", false);
+            setResult(RESULT_CANCELED, data);
+            finish();
 
             switch (error.getCode()) {
                 case SDK_NOT_AUTHORIZED:
@@ -151,6 +217,7 @@ public class CheckoutActivity extends AppCompatActivity {
             }
         }
     }
+
 
     private void startReaderSettings() {
         if (waitingForActivityStart) {

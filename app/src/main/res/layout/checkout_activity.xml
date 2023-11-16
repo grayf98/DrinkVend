@@ -13,12 +13,21 @@
         android:layout_marginTop="@dimen/screen_margin"
         android:src="@drawable/ic_jewel"
         android:contentDescription="@string/application_logo"
+        android:layout_marginBottom="@dimen/screen_margin"
         />
+
+    <Button
+        android:id="@+id/back_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginBottom="10dp"
+        android:text="Back" />
 
     <View
         android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="150sp"
+        android:layout_weight="0"
         />
 
     <TextView
@@ -26,14 +35,10 @@
         android:layout_height="wrap_content"
         android:text="@string/checkout_title"
         android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="@dimen/screen_margin"
         style="@style/TitleText"
         />
 
-    <View
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        />
 
     <Button
         android:id="@+id/start_checkout_button"
@@ -43,14 +48,19 @@
         android:layout_marginBottom="@dimen/vertical_space_margin"
         style="@style/ContainedButton"
         />
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="120sp"
+        android:layout_weight="0"
+        />
 
     <Button
         android:id="@+id/settings_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="@string/settings_button"
         style="@style/OutlinedButton"
         />
+<!--android:text="@string/settings_button"-->
 
 </LinearLayout>

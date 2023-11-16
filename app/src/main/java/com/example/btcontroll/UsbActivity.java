@@ -1,5 +1,7 @@
 package com.example.btcontroll;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.PendingIntent;
@@ -17,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
@@ -38,7 +41,9 @@ public class UsbActivity extends AppCompatActivity {
     Button whiscoke, whisga, whislem, marg, teqoj, teqspri, teqlem, teqsw, vodcran, screw, vodsw, vodspri, vodlem, rumcoke, rumlem, rumga;
     Button splcran, splga, sploj, splsw, splspri, spllem, splcoke;
     Button shotwhis, shotteq, shotvod, shotrum;
-
+    private static final int CHECKOUT_ACTIVITY_REQUEST_CODE = 1;
+    private ActivityResultLauncher<Intent> checkoutActivityResultLauncher;
+    private boolean waitingForActivityStart = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,7 +51,7 @@ public class UsbActivity extends AppCompatActivity {
         initializeButtons();
         initializeSplashesButtons();
         initializeShotsButtons();
-        clicklistners();
+        clickListeners();
 
         usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
         Log.d("USB", "UsbManager: " + usbManager);
@@ -79,18 +84,45 @@ public class UsbActivity extends AppCompatActivity {
                 | View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
 
-        // Video
-        VideoView videoView = findViewById(R.id.videoView);
-        Uri videoUri = Uri.parse("android.resource://" + getPackageName() + "/raw/" + R.raw.bars);
-        videoView.setVideoURI(videoUri);
-        videoView.start();
-        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mediaPlayer) {
-                videoView.start(); // Restart video
-            }
-        });
+        startVideo();
+
+        checkoutActivityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        boolean checkoutSuccess = result.getData().getBooleanExtra("EXTRA_SUCCESSFUL_CHECKOUT", false);
+                        if (checkoutSuccess) {
+                            String dataToSend = result.getData().getStringExtra("DATA_TO_SEND");
+                            sendData(dataToSend);
+                        }
+                    } else {
+                        Toast.makeText(this, "Checkout failed or was canceled.", Toast.LENGTH_LONG).show();
+                    }
+                }
+        );
+
     }
+
+    private void startVideo() {
+        VideoView videoView = findViewById(R.id.videoView);
+        if (videoView != null) {
+            Uri videoUri = Uri.parse("android.resource://" + getPackageName() + "/raw/bars");
+            videoView.setVideoURI(videoUri);
+            videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mediaPlayer) {
+                    videoView.start();
+                }
+            });
+            videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    videoView.start(); // Restart video
+                }
+            });
+        }
+    }
+
 
     //Debug
     @Override
@@ -104,105 +136,148 @@ public class UsbActivity extends AppCompatActivity {
         }
     }
 
-    private void startCheckoutActivity(int price, String drinkName) {
+    private void startCheckoutActivity(int price, String drinkName, String dataToSend) {
         Intent intent = new Intent(this, CheckoutActivity.class);
         intent.putExtra("PRICE", price);
         intent.putExtra("DRINK_NAME", drinkName);
-        startActivity(intent);
+        intent.putExtra("DATA_TO_SEND", dataToSend);
+        checkoutActivityResultLauncher.launch(intent);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CHECKOUT_ACTIVITY_REQUEST_CODE) {
+            if (resultCode == RESULT_OK && data != null) {
+                boolean checkoutSuccess = data.getBooleanExtra("EXTRA_SUCCESSFUL_CHECKOUT", false);
+                if (checkoutSuccess) {
+                    // Only send USB data if the checkout was successful
+                    String dataToSend = data.getStringExtra("DATA_TO_SEND");
+                    sendData(dataToSend);
+                }
+            } else {
+                // Handle checkout failure or cancellation
+                Toast.makeText(this, "Checkout failed or was canceled.", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
 
     //    Buttons
-    private void clicklistners() {
+    private void clickListeners() {
         whiscoke.setOnClickListener(v -> {
             int price = DrinkPrices.getPrice("whiscoke");
-            startCheckoutActivity(price, "WhisCoke");
-
-            sendData("1");
+            startCheckoutActivity(price, "WhisCoke", "1");
         });
         whisga.setOnClickListener(v -> {
-            sendData("8");
+            int price = DrinkPrices.getPrice("whisga");
+            startCheckoutActivity(price, "WhisGa", "8");
         });
         whislem.setOnClickListener(v -> {
-            sendData("9");
+            int price = DrinkPrices.getPrice("whislem");
+            startCheckoutActivity(price, "WhisLem", "9");
         });
         marg.setOnClickListener(v -> {
-            sendData("2");
+            int price = DrinkPrices.getPrice("marg");
+            startCheckoutActivity(price, "Marg", "2");
         });
         teqoj.setOnClickListener(v -> {
-            sendData("a");
+            int price = DrinkPrices.getPrice("teqoj");
+            startCheckoutActivity(price, "TeqOJ", "a");
         });
         teqspri.setOnClickListener(v -> {
-            sendData("b");
+            int price = DrinkPrices.getPrice("teqspri");
+            startCheckoutActivity(price, "TeqSpri", "b");
         });
         teqlem.setOnClickListener(v -> {
-            sendData("c");
+            int price = DrinkPrices.getPrice("teqlem");
+            startCheckoutActivity(price, "TeqLem", "c");
         });
         teqsw.setOnClickListener(v -> {
-            sendData("d");
+            int price = DrinkPrices.getPrice("teqsw");
+            startCheckoutActivity(price, "TeqSw", "d");
         });
         vodcran.setOnClickListener(v -> {
-            sendData("3");
+            int price = DrinkPrices.getPrice("vodcran");
+            startCheckoutActivity(price, "VodCran", "3");
         });
         screw.setOnClickListener(v -> {
-            sendData("4");
+            int price = DrinkPrices.getPrice("screw");
+            startCheckoutActivity(price, "Screw", "4");
         });
         vodsw.setOnClickListener(v -> {
-            sendData("5");
+            int price = DrinkPrices.getPrice("vodsw");
+            startCheckoutActivity(price, "VodSw", "5");
         });
         vodspri.setOnClickListener(v -> {
-            sendData("6");
+            int price = DrinkPrices.getPrice("vodspri");
+            startCheckoutActivity(price, "VodSpri", "6");
         });
         vodlem.setOnClickListener(v -> {
-            sendData("7");
+            int price = DrinkPrices.getPrice("vodlem");
+            startCheckoutActivity(price, "VodLem", "7");
         });
         rumcoke.setOnClickListener(v -> {
-            sendData("e");
+            int price = DrinkPrices.getPrice("rumcoke");
+            startCheckoutActivity(price, "RumCoke", "e");
         });
         rumlem.setOnClickListener(v -> {
-            sendData("f");
+            int price = DrinkPrices.getPrice("rumlem");
+            startCheckoutActivity(price, "RumLem", "f");
         });
         rumga.setOnClickListener(v -> {
-            sendData("g");
+            int price = DrinkPrices.getPrice("rumga");
+            startCheckoutActivity(price, "RumGa", "g");
         });
-//////////////////splash
+
+        // For splash
         splcran.setOnClickListener(v -> {
-            sendData("m");
+            int price = DrinkPrices.getPrice("splcran");
+            startCheckoutActivity(price, "SplCran", "m");
         });
         splga.setOnClickListener(v -> {
-            sendData("n");
+            int price = DrinkPrices.getPrice("splga");
+            startCheckoutActivity(price, "SplGa", "n");
         });
         sploj.setOnClickListener(v -> {
-            sendData("o");
+            int price = DrinkPrices.getPrice("sploj");
+            startCheckoutActivity(price, "Sploj", "o");
         });
         splsw.setOnClickListener(v -> {
-            sendData("p");
+            int price = DrinkPrices.getPrice("splsw");
+            startCheckoutActivity(price, "SplSw", "p");
         });
         splspri.setOnClickListener(v -> {
-            sendData("q");
+            int price = DrinkPrices.getPrice("splspri");
+            startCheckoutActivity(price, "SplSpri", "q");
         });
         spllem.setOnClickListener(v -> {
-            sendData("r");
+            int price = DrinkPrices.getPrice("spllem");
+            startCheckoutActivity(price, "SplLem", "r");
         });
         splcoke.setOnClickListener(v -> {
-            sendData("l");
+            int price = DrinkPrices.getPrice("splcoke");
+            startCheckoutActivity(price, "SplCoke", "l");
         });
 
-        ///////////////shots
+        // For shots
         shotwhis.setOnClickListener(v -> {
-            sendData("h");
+            int price = DrinkPrices.getPrice("shotwhis");
+            startCheckoutActivity(price, "ShotWhis", "h");
         });
         shotteq.setOnClickListener(v -> {
-            sendData("i");
+            int price = DrinkPrices.getPrice("shotteq");
+            startCheckoutActivity(price, "ShotTeq", "i");
         });
         shotvod.setOnClickListener(v -> {
-            sendData("j");
+            int price = DrinkPrices.getPrice("shotvod");
+            startCheckoutActivity(price, "ShotVod", "j");
         });
         shotrum.setOnClickListener(v -> {
-            sendData("k");
+            int price = DrinkPrices.getPrice("shotrum");
+            startCheckoutActivity(price, "ShotRum", "k");
         });
-
     }
+
 
     @Override
     protected void onDestroy() {
@@ -283,6 +358,9 @@ public class UsbActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        startVideo();
+        waitingForActivityStart = false;
+
 
         if (usbManager == null) {
             Log.e("USB", "USB manager is null");
@@ -333,6 +411,10 @@ public class UsbActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        VideoView videoView = findViewById(R.id.videoView);
+        if (videoView != null && videoView.isPlaying()) {
+            videoView.stopPlayback();
+        }
         unregisterReceiver(usbReceiver);
     }
 

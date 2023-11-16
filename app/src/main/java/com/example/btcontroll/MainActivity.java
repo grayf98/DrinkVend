@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         search = (Button) findViewById(R.id.search);
         connect = (Button) findViewById(R.id.connect);
         usb_connect = (Button) findViewById(R.id.usb_activity);
-
+//        Authorization Button
         Button authorize = findViewById(R.id.authorize);
         authorize.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(startAuthorizeIntent);
             }
         });
-
 
         usb_connect.setOnClickListener(new View.OnClickListener() {
             @Override
